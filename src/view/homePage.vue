@@ -1,63 +1,54 @@
 <template>
-    <div class="page page-home">
-        <infoBoard />
+    <div class="bg">
+        <infoBoard :SendMessage="SendMessage" :chatGPTMsg="chatGPTMsg" />
     </div>
 </template>
+
 <script>
 import infoBoard from '../components/board/articleBoard.vue'
-
 export default {
     name: 'homePage',
     components: {
         infoBoard
     },
+    mounted() {
+        this.ws = new WebSocket('ws://localhost:3000');
+
+        this.ws.addEventListener('open', () => {
+            console.log('WebSocket connected')
+            // this.ws.send('hi')
+        })
+
+        this.ws.addEventListener('message', (event) => {
+            this.chatGPTMsg.push(event.data)
+            console.log('WebSocket message received:', event)
+        })
+
+        this.ws.addEventListener('close', () => {
+            console.log('WebSocket disconnected')
+        })
+    },
     data() {
         return {
-            json:
-                [
-                    {
-                        irontitle: "第 11 屆 iT 邦幫忙鐵人賽",
-                        articles: [
-                            {
-                                type: "Modern Web",
-                                title:
-                                    "「小孩才做選擇，我全都要。」小白也能輕鬆瞭解的 Vue.js 與 D3.js 。",
-                                href: "https://ithelp.ithome.com.tw/users/20119062/ironman/2242",
-                                info: {
-                                    success: true,
-                                    count: 32,
-                                    subscribe: 39
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        irontitle: "2019 邦幫忙鐵人賽",
-                        articles: [
-                            {
-                                type: "自我挑戰",
-                                title: "挑戰連續三十天喝不同家手搖飲。",
-                                href: "",
-                                info: {
-                                    success: false,
-                                    count: 29,
-                                    subscribe: 512
-                                }
-                            },
-                            {
-                                type: "自我挑戰",
-                                title: "連續三十天發廢文。",
-                                href: "",
-                                info: {
-                                    success: true,
-                                    count: 999,
-                                    subscribe: 87
-                                }
-                            }
-                        ]
-                    }
-                ]
+            chatGPTMsg: []
+        }
+    },
+    beforeUnmount() {
+        this.ws.close()
+    },
+    methods: {
+        SendMessage(msg) {
+            this.ws.send(msg);
         }
     }
 }
 </script>
+<style scoped lang="scss">
+.bg {
+    height: 100vh;
+    position: relative;
+    margin: 0;
+    font-family: Söhne, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, Helvetica Neue, Arial, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+    ;
+}
+</style>
