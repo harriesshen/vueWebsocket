@@ -1,14 +1,16 @@
 import { Configuration, OpenAIApi } from "openai";
-const openAPiKey = "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";
+
+import express from "express";
+import WebSocket, { WebSocketServer } from "ws";
+import dotenv from "dotenv";
+const env = dotenv.config({ path: "../.env" }).parsed.openAI_key;
+
+const openAPiKey = env;
 const configuration = new Configuration({
   organization: "org-dmMIKxscxIBZkk1UIH6Jqg0G",
   apiKey: openAPiKey,
 });
 const openai = new OpenAIApi(configuration);
-
-import express from "express";
-import WebSocket, { WebSocketServer } from "ws";
-
 // const express = require("express");
 // const SocketServer = ws.Server;
 

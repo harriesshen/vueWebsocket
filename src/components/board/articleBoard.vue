@@ -1,6 +1,6 @@
 <template>
   <div id="content">
-    <span class="msg" v-for="(item, index) in chatGPTMsg" v-bind:key="index">{{ item }}</span>
+    <span class="msg" v-for="(item, index) in content" v-bind:key="index">{{ item }}</span>
   </div>
   <div id="InputBox">
     <input type="text" v-model="msg" id="InputText" placeholder="輸入" v-on:keyup.enter="handleClick" />
@@ -8,28 +8,36 @@
 </template>
 
 <script>
+import { toRefs, inject, ref } from 'vue'
 //^^^^^^^^^^^^^^^^^^^^HTML&Vue^^^^^^^^^^^^^^^^^^^^^
-
+import { socketService } from '@/util/socketService'
 export default {
-  name: 'articleBoard',
-  props: { SendMessage: Function, chatGPTMsg: Array },
-  data() {
-    return {
-      msg: '', lastEnterTime: 0
-    }
-  },
-  methods: {
-    handleClick() {
+
+  setup() {
+    const { SendMessage } = socketService()
+    const stateStore = inject("chatGPTMsg")
+    const { state } = stateStore
+    console.log('board', state.chatGPTMsg)
+    const lastEnterTime = ref(0)
+    const msg = ref("")
+    const handleClick = () => {
       const now = Date.now()
-      if (now - this.lastEnterTime > 2000) { // 检查时间间隔是否大于 1 秒
-        console.log('msg', this.msg)
-        this.SendMessage(this.msg)
-        this.msg = ''
-        this.lastEnterTime = now
+      if (now - lastEnterTime.value > 2000) { // 检查时间间隔是否大于 1 秒
+        console.log('clickMSG', msg.value)
+        SendMessage(msg)
+        lastEnterTime.value = now
+        msg.value = ""
       }
 
     }
-  }
+    return {
+      ...toRefs(state),
+      msg,
+      lastEnterTime,
+      content: state.chatGPTMsg,
+      handleClick
+    }
+  },
 }
 </script>
 
